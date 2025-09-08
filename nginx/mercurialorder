@@ -1,0 +1,55 @@
+erver {
+    listen 443 ssl;
+    server_name mercurialorder.com www.mercurialorder.com;
+
+    root /var/www/mercurialorder;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /Build/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    # loader.js: serve plain
+    location ~ ^/Build/.*\.loader\.js$ {
+        default_type application/javascript;
+    }
+
+    # framework.js.br: Brotli
+    location ~ ^/Build/.*\.framework\.js\.br$ {
+        gzip off;
+        add_header Content-Encoding br;
+        add_header Vary Accept-Encoding;
+        default_type application/javascript;
+    }
+
+    # wasm.br: Brotli + correct MIME
+    location ~ ^/Build/.*\.wasm\.br$ {
+        gzip off;
+        add_header Content-Encoding br;
+        add_header Vary Accept-Encoding;
+        default_type application/wasm;
+        add_header Cross-Origin-Resource-Policy cross-origin;
+    }
+
+    # data.br: Brotli
+    location ~ ^/Build/.*\.data\.br$ {
+        gzip off;
+        add_header Content-Encoding br;
+        add_header Vary Accept-Encoding;
+        default_type application/octet-stream;
+    }
+
+    ssl_certificate /etc/letsencrypt/live/mercurialorder.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mercurialorder.com/privkey.pem;
+}
+
+server {
+    listen 80;
+    server_name mercurialorder.com www.mercurialorder.com;
+    return 301 https://$host$request_uri;
+}
+
