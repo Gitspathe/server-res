@@ -1,5 +1,5 @@
 erver {
-    listen 443 ssl;
+    listen 443 ssl http2;
     server_name mercurialorder.com www.mercurialorder.com;
 
     root /var/www/mercurialorder;
